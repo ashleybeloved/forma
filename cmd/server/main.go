@@ -2,6 +2,7 @@ package main
 
 import (
 	"forma/internal/config"
+	"forma/internal/handler"
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
@@ -15,13 +16,12 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	// Routes
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	// Handlers
+	pingHandler := handler.NewPingHandler(cfg)
 
-	slog.Info("Server running on port " + cfg.ServerPort)
+	// Routes
+	r.GET("/ping", pingHandler.Handle)
+
+	slog.Info("Forma Server running on port " + cfg.ServerPort)
 	r.Run(cfg.ServerPort)
 }

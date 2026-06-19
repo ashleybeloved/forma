@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	ServerPort string
+	AppVersion string
 }
 
 func Load() *Config {
@@ -21,11 +22,20 @@ func Load() *Config {
 	if port == "" {
 		port = ":8080"
 
-		slog.Warn("SERVER_PORT not found in .env, using default",
-			slog.String("SERVER_PORT", ":8080"))
+		slog.Warn("Environment Variable not found, using default",
+			slog.String("SERVER_PORT", port))
+	}
+
+	appVersion := os.Getenv("APP_VERSION")
+	if appVersion == "" {
+		appVersion = "undefined"
+
+		slog.Warn("Environment Variable not found, using default",
+			slog.String("APP_VERSION", appVersion))
 	}
 
 	return &Config{
 		ServerPort: port,
+		AppVersion: appVersion,
 	}
 }
