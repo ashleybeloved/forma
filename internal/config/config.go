@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	ServerPort string
-	AppVersion string
+	ServerPort   string
+	AppVersion   string
+	DatabasePath string
 }
 
 func Load() *Config {
@@ -34,8 +35,17 @@ func Load() *Config {
 			slog.String("APP_VERSION", appVersion))
 	}
 
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./data/forma.db"
+
+		slog.Warn("Environment Variable not found, using default",
+			slog.String("DB_PATH", dbPath))
+	}
+
 	return &Config{
-		ServerPort: port,
-		AppVersion: appVersion,
+		ServerPort:   port,
+		AppVersion:   appVersion,
+		DatabasePath: dbPath,
 	}
 }
