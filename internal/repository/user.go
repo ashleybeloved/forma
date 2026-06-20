@@ -16,9 +16,9 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	}
 }
 
-func (h *UserRepository) UsernameExists(username string) bool {
+func (r *UserRepository) UsernameExists(username string) bool {
 	var id int
-	err := h.DB.QueryRow(`SELECT id FROM users WHERE username = ?`, username).Scan(&id)
+	err := r.DB.QueryRow(`SELECT id FROM users WHERE username = ?`, username).Scan(&id)
 	if err == sql.ErrNoRows {
 		return false
 	}
@@ -31,13 +31,13 @@ func (h *UserRepository) UsernameExists(username string) bool {
 	return true
 }
 
-func (h *UserRepository) AddUser(username string, hashedPassword string) error {
-	exists := h.UsernameExists(username)
+func (r *UserRepository) AddUser(username string, hashedPassword string) error {
+	exists := r.UsernameExists(username)
 	if exists {
 		return ErrUsernameAlreadyExists
 	}
 
-	_, err := h.DB.Exec(`INSERT INTO users (username, password) VALUES (?, ?)`, username, hashedPassword)
+	_, err := r.DB.Exec(`INSERT INTO users (username, password) VALUES (?, ?)`, username, hashedPassword)
 	if err != nil {
 		slog.Warn("failed to insert user in database", "error", err)
 		return err
@@ -45,10 +45,10 @@ func (h *UserRepository) AddUser(username string, hashedPassword string) error {
 	return nil
 }
 
-func (h *UserRepository) GetUserByID(id int) (*model.User, error) {
+func (r *UserRepository) GetUserByID(id int) (*model.User, error) {
 	user := model.User{}
 
-	err := h.DB.QueryRow(`SELECT id, username, password, created_at FROM users WHERE id = ?`, id).Scan(&user.ID, &user.Username, &user.Password, &user.CreatedAt)
+	err := r.DB.QueryRow(`SELECT id, username, password, created_at FROM users WHERE id = ?`, id).Scan(&user.ID, &user.Username, &user.Password, &user.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -62,10 +62,10 @@ func (h *UserRepository) GetUserByID(id int) (*model.User, error) {
 	return &user, nil
 }
 
-func (h *UserRepository) GetUserByUsername(username string) (*model.User, error) {
+func (r *UserRepository) GetUserByUsername(username string) (*model.User, error) {
 	user := model.User{}
 
-	err := h.DB.QueryRow(`SELECT id, username, password, created_at FROM users WHERE username = ?`, username).Scan(&user.ID, &user.Username, &user.Password, &user.CreatedAt)
+	err := r.DB.QueryRow(`SELECT id, username, password, created_at FROM users WHERE username = ?`, username).Scan(&user.ID, &user.Username, &user.Password, &user.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

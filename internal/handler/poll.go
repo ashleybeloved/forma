@@ -73,6 +73,72 @@ func (h *PollHandler) CreatePoll(c *gin.Context) {
 	c.JSON(http.StatusCreated, poll)
 }
 
+func (h *PollHandler) UpdatePoll(c *gin.Context) {
+	req := &model.UpdatePollRequest{}
+
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid input, id, title and config are required fields",
+		})
+		return
+	}
+
+	creatorID, _ := c.Get("user_id")
+	if creatorID == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "missing user_id in context",
+		})
+		return
+	}
+
+	err = h.Service.UpdatePoll(req.ID, req.Title, req.Description, req.Config, creatorID.(int))
+	if err != nil {
+		switch err {
+		case repository.ErrPollNotFound:
+			c.JSON(http.StatusBadRequest, gin.H{"error": repository.ErrPollNotFound.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create poll"})
+		}
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (h *PollHandler) DeletePoll(c *gin.Context) {
+	req := &model.DeletePollRequest{}
+
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid input, id are required field",
+		})
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	if userID == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "missing user_id in context",
+		})
+		return
+	}
+
+	err = h.Service.DeletePoll(req.ID, userID.(int))
+	if err != nil {
+		switch err {
+		case repository.ErrPollNotFound:
+			c.JSON(http.StatusBadRequest, gin.H{"error": repository.ErrPollNotFound.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete poll"})
+		}
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
 func (h *PollHandler) GetAllMyPolls(c *gin.Context) {
 	creatorID, _ := c.Get("user_id")
 	if creatorID == nil {

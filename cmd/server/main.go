@@ -46,8 +46,10 @@ func main() {
 	auth := r.Group("")
 	auth.Use(middleware.AuthMiddleware(cfg))
 	{
-		auth.GET("/polls", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT and OFFSET
 		auth.POST("/poll", pollHandler.CreatePoll)    // Create Poll
+		auth.PATCH("/poll", pollHandler.UpdatePoll)   // Edit Poll
+		auth.DELETE("/poll", pollHandler.DeletePoll)  // Delete Poll
+		auth.GET("/polls", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT and OFFSET
 	}
 
 	slog.Info("Forma Server running on port " + cfg.ServerPort)

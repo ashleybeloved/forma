@@ -17,8 +17,8 @@ func NewPollRepository(db *sql.DB) *PollRepository {
 	}
 }
 
-func (h *PollRepository) CreatePoll(poll *model.Poll, config []byte) error {
-	result, err := h.DB.Exec(`INSERT INTO polls (title, description, config, creator_id, short_id) VALUES (?, ?, ?, ?, ?)`,
+func (r *PollRepository) CreatePoll(poll *model.Poll, config []byte) error {
+	result, err := r.DB.Exec(`INSERT INTO polls (title, description, config, creator_id, short_id) VALUES (?, ?, ?, ?, ?)`,
 		poll.Title, poll.Description, config, poll.CreatorID, poll.ShortID)
 
 	if err != nil {
@@ -37,10 +37,41 @@ func (h *PollRepository) CreatePoll(poll *model.Poll, config []byte) error {
 	return nil
 }
 
-func (h *PollRepository) GetPollByID(pollID int) (*model.Poll, error) {
+func (r *PollRepository) UpdatePoll(poll *model.Poll, configBytes []byte, userID int) error {
+	result, err := r.DB.Exec(`UPDATE polls SET title = ?, description = ?, config = ?, edited_at = DATETIME('now') WHERE id = ? AND creator_id = ?`,
+		poll.Title, poll.Description, configBytes, poll.ID, userID)
+
+	if err != nil {
+		slog.Error("failed to execute query", "error", err)
+		return err
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return ErrPollNotFound
+	}
+
+	return nil
+}
+
+func (r *PollRepository) DeletePoll(pollID, creatorID int) error {
+	result, err := r.DB.Exec(`DELETE FROM polls WHERE id = ? AND creator_id = ?`, pollID, creatorID)
+	if err != nil {
+		return err
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return ErrPollNotFound
+	}
+
+	return nil
+}
+
+func (r *PollRepository) GetPollByID(pollID int) (*model.Poll, error) {
 	poll := model.Poll{}
 
-	err := h.DB.QueryRow(`SELECT id, title, description, config, creator_id, short_id, edited_at, created_at FROM polls WHERE id = ?`, pollID).
+	err := r.DB.QueryRow(`SELECT id, title, description, config, creator_id, short_id, edited_at, created_at FROM polls WHERE id = ?`, pollID).
 		Scan(&poll.ID, &poll.Title, &poll.Description, &poll.Config, &poll.CreatorID, &poll.ShortID, &poll.EditedAt, &poll.CreatedAt)
 
 	if err != nil {
@@ -55,12 +86,12 @@ func (h *PollRepository) GetPollByID(pollID int) (*model.Poll, error) {
 	return &poll, nil
 }
 
-func (h *PollRepository) GetPollByShortID(pollShortID string) (*model.Poll, error) {
+func (r *PollRepository) GetPollByShortID(pollShortID string) (*model.Poll, error) {
 	var poll = model.Poll{}
 	var configBytes []byte
 
-	err := h.DB.QueryRow(`SELECT id, title, description, config, creator_id, short_id, edited_at, created_at FROM polls WHERE short_id = ?`, pollShortID).
-		Scan(&poll.ID, &poll.Title, &poll.Description, &configBytes, &poll.CreatorID, &poll.ShortID, &poll.CreatedAt)
+	err := r.DB.QueryRow(`SELECT id, title, description, config, creator_id, short_id, edited_at, created_at FROM polls WHERE short_id = ?`, pollShortID).
+		Scan(&poll.ID, &poll.Title, &poll.Description, &configBytes, &poll.CreatorID, &poll.ShortID, &poll.EditedAt, &poll.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -79,8 +110,8 @@ func (h *PollRepository) GetPollByShortID(pollShortID string) (*model.Poll, erro
 	return &poll, nil
 }
 
-func (h *PollRepository) GetPollsByCreatorID(creatorID, limit, offset int) (polls []model.Poll, err error) {
-	rows, err := h.DB.Query(`SELECT id, title, description, config, short_id, edited_at, created_at FROM polls WHERE creator_id = ? LIMIT ? OFFSET ?`, creatorID, limit, offset)
+func (r *PollRepository) GetPollsByCreatorID(creatorID, limit, offset int) (polls []model.Poll, err error) {
+	rows, err := r.DB.Query(`SELECT id, title, description, config, short_id, edited_at, created_at FROM polls WHERE creator_id = ? LIMIT ? OFFSET ?`, creatorID, limit, offset)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

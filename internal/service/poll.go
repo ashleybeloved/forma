@@ -63,3 +63,22 @@ func (s *PollService) CreatePoll(title, description string, config model.PollCon
 
 	return poll, nil
 }
+
+func (s *PollService) UpdatePoll(id int, title, description string, config model.PollConfig, userID int) error {
+	configBytes, err := json.Marshal(config)
+	if err != nil {
+		return ErrMarshalJSON
+	}
+
+	poll := &model.Poll{
+		ID:          id,
+		Title:       title,
+		Description: description,
+	}
+
+	return s.Repo.UpdatePoll(poll, configBytes, userID)
+}
+
+func (s *PollService) DeletePoll(id, creatorID int) error {
+	return s.Repo.DeletePoll(id, creatorID)
+}

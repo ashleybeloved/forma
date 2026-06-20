@@ -32,6 +32,17 @@ type NewPollRequest struct {
 	Config      PollConfig `json:"config" binding:"required"`
 }
 
+type UpdatePollRequest struct {
+	ID          int        `json:"id" binding:"required"`
+	Title       string     `json:"title" binding:"required"`
+	Description string     `json:"description"`
+	Config      PollConfig `json:"config" binding:"required"`
+}
+
+type DeletePollRequest struct {
+	ID int `json:"id" binding:"required"`
+}
+
 type PollHeader struct {
 	ID          int        `json:"id"`
 	Title       string     `json:"title"`
