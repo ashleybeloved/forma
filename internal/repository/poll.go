@@ -79,8 +79,8 @@ func (h *PollRepository) GetPollByShortID(pollShortID string) (*model.Poll, erro
 	return &poll, nil
 }
 
-func (h *PollRepository) GetPollsByCreatorID(creatorID int) (polls []model.Poll, err error) {
-	rows, err := h.DB.Query(`SELECT id, title, description, config, short_id, edited_at, created_at FROM polls WHERE creator_id = ?`, creatorID)
+func (h *PollRepository) GetPollsByCreatorID(creatorID, limit, offset int) (polls []model.Poll, err error) {
+	rows, err := h.DB.Query(`SELECT id, title, description, config, short_id, edited_at, created_at FROM polls WHERE creator_id = ? LIMIT ? OFFSET ?`, creatorID, limit, offset)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -30,8 +30,8 @@ func (s *PollService) GetPollByShortID(shortID string) (*model.Poll, error) {
 	return poll, nil
 }
 
-func (s *PollService) GetAllMyPolls(creatorID int) ([]model.Poll, error) {
-	polls, err := s.Repo.GetPollsByCreatorID(creatorID)
+func (s *PollService) GetAllMyPolls(creatorID, limit, offset int) ([]model.Poll, error) {
+	polls, err := s.Repo.GetPollsByCreatorID(creatorID, limit, offset)
 	if err != nil {
 		return nil, err
 	}

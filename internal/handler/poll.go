@@ -6,6 +6,7 @@ import (
 	"forma/internal/repository"
 	"forma/internal/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -81,7 +82,10 @@ func (h *PollHandler) GetAllMyPolls(c *gin.Context) {
 		return
 	}
 
-	polls, err := h.Service.GetAllMyPolls(creatorID.(int))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+
+	polls, err := h.Service.GetAllMyPolls(creatorID.(int), limit, offset)
 	if err != nil {
 		switch err {
 		case repository.ErrPollsNotFound:

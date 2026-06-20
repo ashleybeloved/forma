@@ -46,7 +46,7 @@ func main() {
 	auth := r.Group("")
 	auth.Use(middleware.AuthMiddleware(cfg))
 	{
-		auth.GET("/polls", pollHandler.GetAllMyPolls) // Get All Profile Polls
+		auth.GET("/polls", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT and OFFSET
 		auth.POST("/poll", pollHandler.CreatePoll)    // Create Poll
 	}
 
