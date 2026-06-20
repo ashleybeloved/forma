@@ -3,6 +3,8 @@ package main
 import (
 	"forma/internal/config"
 	"forma/internal/handler"
+	"forma/internal/repository"
+	"forma/internal/service"
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
@@ -12,15 +14,26 @@ func main() {
 	// Load Config
 	cfg := config.Load()
 
+	// Connect Database
+	db := repository.Connect(cfg.DatabasePath)
+
 	// Setup Gin
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	// Handlers
+	// Dependency Injection
 	pingHandler := handler.NewPingHandler(cfg)
+
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService, cfg)
 
 	// Routes
 	r.GET("/ping", pingHandler.Handle)
+
+	r.POST("/register", userHandler.Register)
+	r.POST("/login", userHandler.Login)
+	r.POST("/logout", userHandler.Logout)
 
 	slog.Info("Forma Server running on port " + cfg.ServerPort)
 	r.Run(cfg.ServerPort)
