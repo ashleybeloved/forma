@@ -29,10 +29,15 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService, cfg)
 
+	pollRepo := repository.NewPollRepository(db)
+	pollService := service.NewPollService(pollRepo, cfg)
+	pollHandler := handler.NewPollHandler(pollService, cfg)
+
 	// - Routes -
 	r.GET("/ping", pingHandler.Handle)
 
 	// -- No Auth --
+	r.GET("/poll/:short_id", pollHandler.GetPollByShortID)
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
 	r.POST("/logout", userHandler.Logout)
@@ -40,6 +45,10 @@ func main() {
 	// -- Need Auth --
 	auth := r.Group("")
 	auth.Use(middleware.AuthMiddleware(cfg))
+	{
+		auth.GET("/polls", pollHandler.GetAllMyPolls) // Get All Profile Polls
+		auth.POST("/poll", pollHandler.CreatePoll)    // Create Poll
+	}
 
 	slog.Info("Forma Server running on port " + cfg.ServerPort)
 	r.Run(cfg.ServerPort)

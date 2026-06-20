@@ -27,9 +27,9 @@ type Poll struct {
 }
 
 type NewPollRequest struct {
-	Title       string     `json:"title"`
+	Title       string     `json:"title" binding:"required"`
 	Description string     `json:"description"`
-	Config      PollConfig `json:"config"`
+	Config      PollConfig `json:"config" binding:"required"`
 }
 
 type PollHeader struct {
@@ -39,6 +39,6 @@ type PollHeader struct {
 	Config      PollConfig `json:"config"`
 	CreatorID   int        `json:"creator_id"`
 	ShortID     string     `json:"short_id"`
-	EditedAt    time.Time  `json:"edited_at"`
+	EditedAt    *time.Time `json:"edited_at"`
 	CreatedAt   time.Time  `json:"created_at"`
 }

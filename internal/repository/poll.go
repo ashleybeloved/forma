@@ -11,8 +11,8 @@ type PollRepository struct {
 	DB *sql.DB
 }
 
-func NewPollRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{
+func NewPollRepository(db *sql.DB) *PollRepository {
+	return &PollRepository{
 		DB: db,
 	}
 }
@@ -55,11 +55,12 @@ func (h *PollRepository) GetPollByID(pollID int) (*model.Poll, error) {
 	return &poll, nil
 }
 
-func (h *PollRepository) GetPollByShortID(pollShortID int) (*model.Poll, error) {
-	poll := model.Poll{}
+func (h *PollRepository) GetPollByShortID(pollShortID string) (*model.Poll, error) {
+	var poll = model.Poll{}
+	var configBytes []byte
 
-	err := h.DB.QueryRow(`SELECT id, title, description, config, creator_id, short_id edited_at, created_at FROM polls WHERE short_id = ?`, pollShortID).
-		Scan(&poll.ID, &poll.Title, &poll.Description, &poll.Config, &poll.CreatorID, &poll.ShortID, &poll.EditedAt, &poll.CreatedAt)
+	err := h.DB.QueryRow(`SELECT id, title, description, config, creator_id, short_id, edited_at, created_at FROM polls WHERE short_id = ?`, pollShortID).
+		Scan(&poll.ID, &poll.Title, &poll.Description, &configBytes, &poll.CreatorID, &poll.ShortID, &poll.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -67,6 +68,11 @@ func (h *PollRepository) GetPollByShortID(pollShortID int) (*model.Poll, error) 
 		}
 
 		slog.Error("failed to execute query", "error", err)
+		return nil, err
+	}
+
+	err = json.Unmarshal(configBytes, &poll.Config)
+	if err != nil {
 		return nil, err
 	}
 

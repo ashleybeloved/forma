@@ -16,6 +16,7 @@ type Config struct {
 	JWTTimeToLive int
 	JWTSecretKey  string
 	Domain        string
+	ShortIDLength int
 }
 
 func Load() *Config {
@@ -71,13 +72,25 @@ func Load() *Config {
 	var ttl int
 	ttlStr := os.Getenv("JWT_TTL")
 	if ttlStr == "" {
-		ttlStr := "4380"
+		ttlStr = "4380"
 		ttl, _ = strconv.Atoi(ttlStr)
 
 		slog.Warn("Environment Variable not found, using default",
 			slog.String("JWT_TTL", ttlStr))
 	} else {
 		ttl, _ = strconv.Atoi(ttlStr)
+	}
+
+	var length int
+	lengthStr := os.Getenv("SHORT_ID_LENGTH")
+	if lengthStr == "" {
+		lengthStr = "8"
+		length, _ = strconv.Atoi(lengthStr)
+
+		slog.Warn("Environment Variable not found, using default",
+			slog.String("SHORT_ID_LENGTH", lengthStr))
+	} else {
+		length, _ = strconv.Atoi(lengthStr)
 	}
 
 	secretKey := os.Getenv("JWT_SECRET_KEY")
@@ -93,5 +106,6 @@ func Load() *Config {
 		JWTTimeToLive: ttl,
 		JWTSecretKey:  secretKey,
 		Domain:        domain,
+		ShortIDLength: length,
 	}
 }

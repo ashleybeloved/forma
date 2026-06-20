@@ -82,7 +82,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": service.ErrInvalidPassword.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "failed to register user",
+				"error": "failed to login user",
 			})
 		}
 		return

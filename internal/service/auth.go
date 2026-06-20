@@ -16,18 +16,18 @@ func NewUserService(repo *repository.UserRepository) *AuthService {
 	}
 }
 
-func (h *AuthService) Register(username, password string) (*model.User, error) {
+func (s *AuthService) Register(username, password string) (*model.User, error) {
 	hashedPassword, err := pkg.HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
 
-	err = h.Repo.AddUser(username, hashedPassword)
+	err = s.Repo.AddUser(username, hashedPassword)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := h.Repo.GetUserByUsername(username)
+	user, err := s.Repo.GetUserByUsername(username)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +35,8 @@ func (h *AuthService) Register(username, password string) (*model.User, error) {
 	return user, nil
 }
 
-func (h *AuthService) Login(username, password string) (*model.User, error) {
-	user, err := h.Repo.GetUserByUsername(username)
+func (s *AuthService) Login(username, password string) (*model.User, error) {
+	user, err := s.Repo.GetUserByUsername(username)
 	if err != nil {
 		return nil, err
 	}
