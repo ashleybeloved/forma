@@ -80,7 +80,7 @@ func (h *PollRepository) GetPollByShortID(pollShortID string) (*model.Poll, erro
 }
 
 func (h *PollRepository) GetPollsByCreatorID(creatorID int) (polls []model.Poll, err error) {
-	rows, err := h.DB.Query(`SELECT (id, title, description, config, short_id, edited_at, created_at) FROM polls WHERE creator_id = ?`, creatorID)
+	rows, err := h.DB.Query(`SELECT id, title, description, config, short_id, edited_at, created_at FROM polls WHERE creator_id = ?`, creatorID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -97,7 +97,7 @@ func (h *PollRepository) GetPollsByCreatorID(creatorID int) (polls []model.Poll,
 		var p model.Poll
 		var configBytes []byte
 
-		err := rows.Scan(&p.ID, &p.Title, &p.Description, &configBytes, &p.ShortID, &p.CreatedAt)
+		err := rows.Scan(&p.ID, &p.Title, &p.Description, &configBytes, &p.ShortID, &p.EditedAt, &p.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -115,6 +115,10 @@ func (h *PollRepository) GetPollsByCreatorID(creatorID int) (polls []model.Poll,
 
 	if err = rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if polls == nil {
+		return nil, ErrPollsNotFound
 	}
 
 	return polls, nil
