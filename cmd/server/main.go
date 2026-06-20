@@ -3,6 +3,7 @@ package main
 import (
 	"forma/internal/config"
 	"forma/internal/handler"
+	"forma/internal/middleware"
 	"forma/internal/repository"
 	"forma/internal/service"
 	"log/slog"
@@ -28,12 +29,17 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService, cfg)
 
-	// Routes
+	// - Routes -
 	r.GET("/ping", pingHandler.Handle)
 
+	// -- No Auth --
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
 	r.POST("/logout", userHandler.Logout)
+
+	// -- Need Auth --
+	auth := r.Group("")
+	auth.Use(middleware.AuthMiddleware(cfg))
 
 	slog.Info("Forma Server running on port " + cfg.ServerPort)
 	r.Run(cfg.ServerPort)

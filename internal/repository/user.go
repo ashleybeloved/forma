@@ -52,7 +52,6 @@ func (h *UserRepository) GetUserByID(id int) (*model.User, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			slog.Info("user not found", "id", id)
 			return nil, ErrUserNotFound
 		}
 
