@@ -181,9 +181,7 @@ func (h *PollHandler) Vote(c *gin.Context) {
 		userID = -1
 	}
 
-	pollShortID := c.Query("sid")
-
-	err = h.Service.Vote(userID.(int), pollShortID, &req.Answers, c.ClientIP())
+	err = h.Service.Vote(userID.(int), c.Param("short_id"), &req.Answers, c.ClientIP())
 	if err != nil {
 		switch err {
 		case service.ErrMarshalJSON:

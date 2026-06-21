@@ -38,7 +38,7 @@ func main() {
 	r.GET("/ping", pingHandler.Handle)
 
 	r.GET("/poll/:short_id", pollHandler.GetPollByShortID)
-	r.POST("/vote", pollHandler.Vote) // Vote Poll | Query "id"
+	r.POST("/poll/:short_id/vote", pollHandler.Vote)
 
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
