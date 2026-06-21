@@ -163,8 +163,8 @@ func (r *PollRepository) Vote(vote *model.Vote, answers *model.Answers) error {
 
 	defer tx.Rollback()
 
-	result, err := tx.Exec(`INSERT INTO votes (poll_short_id, user_id, ip) VALUES (?, ?, ?)`,
-		vote.PollShortID, vote.UserID, vote.IP)
+	result, err := tx.Exec(`INSERT INTO votes (poll_short_id, user_id, ip, guest_token) VALUES (?, ?, ?, ?)`,
+		vote.PollShortID, vote.UserID, vote.IP, vote.GuestToken)
 
 	if err != nil {
 		slog.Error("failed to execute query", "error", err)

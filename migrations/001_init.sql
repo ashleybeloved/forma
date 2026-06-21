@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS votes (
     poll_short_id TEXT NOT NULL,
     user_id INTEGER,
     ip TEXT NOT NULL,
-    guest_token TEXT,
+    guest_token TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (poll_short_id) REFERENCES polls(short_id) ON DELETE CASCADE,

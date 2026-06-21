@@ -176,12 +176,20 @@ func (h *PollHandler) Vote(c *gin.Context) {
 		return
 	}
 
-	userID, _ := c.Get("user_id")
-	if userID == nil {
-		userID = -1
+	tokenStr, err := c.Cookie("forma_token")
+	if err != nil {
+		tokenStr = ""
 	}
 
-	err = h.Service.Vote(userID.(int), c.Param("short_id"), &req.Answers, c.ClientIP())
+	guestToken, _ := c.Get("guest_token")
+	if guestToken == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missed guest token",
+		})
+		return
+	}
+
+	err = h.Service.Vote(tokenStr, c.Param("short_id"), guestToken.(string), c.ClientIP(), &req.Answers)
 	if err != nil {
 		switch err {
 		case service.ErrMarshalJSON:

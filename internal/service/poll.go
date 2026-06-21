@@ -83,11 +83,25 @@ func (s *PollService) DeletePoll(id, creatorID int) error {
 	return s.Repo.DeletePoll(id, creatorID)
 }
 
-func (s *PollService) Vote(userID int, pollShortID string, answers *model.Answers, ip string) error {
+func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers *model.Answers) error {
+	var userID int
+
+	if tokenStr == "" {
+		userID = -1
+	} else {
+		claims, err := pkg.ValidateToken(tokenStr, s.Config.JWTSecretKey)
+		if err != nil {
+			return ErrInvalidToken
+		}
+
+		userID = claims.UserID
+	}
+
 	vote := &model.Vote{
 		PollShortID: pollShortID,
 		UserID:      userID,
 		IP:          ip,
+		GuestToken:  guestToken,
 	}
 
 	err := s.Repo.Vote(vote, answers)
