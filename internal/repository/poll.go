@@ -155,12 +155,46 @@ func (r *PollRepository) GetPollsByCreatorID(creatorID, limit, offset int) (poll
 	return polls, nil
 }
 
-func (r *PollRepository) Vote(vote *model.Vote, answersBytes []byte) error {
-	_, err := r.DB.Exec(`INSERT INTO votes (poll_short_id, user_id, ip, answers) VALUES (?, ?, ?, ?)`,
-		vote.PollShortID, vote.UserID, vote.IP, answersBytes)
+func (r *PollRepository) Vote(vote *model.Vote, answers *model.Answers) error {
+	tx, err := r.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	result, err := tx.Exec(`INSERT INTO votes (poll_short_id, user_id, ip) VALUES (?, ?, ?)`,
+		vote.PollShortID, vote.UserID, vote.IP)
 
 	if err != nil {
 		slog.Error("failed to execute query", "error", err)
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		slog.Error("failed to insert last id to vote structure", "error", err)
+		return err
+	}
+
+	for _, answer := range answers.Answers {
+		for _, option := range answer.Options {
+			_, err := tx.Exec(`INSERT INTO vote_answers (vote_id, question_id, options) VALUES (?, ?, ?)`,
+				int(id), answer.QuestionID, option)
+
+			if err != nil {
+				slog.Error("failed to insert vote answer",
+					"error", err,
+					"vote_id", int(id),
+					"question_id", answer.QuestionID,
+				)
+				return err
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		slog.Error("failed to commit vote transaction", "error", err)
 		return err
 	}
 

@@ -24,9 +24,17 @@ CREATE TABLE IF NOT EXISTS votes (
     user_id INTEGER,
     ip TEXT NOT NULL,
     guest_token TEXT,
-    answers TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (poll_short_id) REFERENCES polls(short_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS vote_answers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vote_id INTEGER NOT NULL,
+    question_id INTEGER NOT NULL,
+    options TEXT NOT NULL,
+
+    FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE
 );

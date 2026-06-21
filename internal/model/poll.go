@@ -27,8 +27,8 @@ type Poll struct {
 }
 
 type Answer struct {
-	QuestID int      `json:"quest_id" binding:"required"`
-	Options []string `json:"options" binding:"required"`
+	QuestionID int      `json:"question_id" binding:"required"`
+	Options    []string `json:"options" binding:"required"`
 }
 
 type Answers struct {
