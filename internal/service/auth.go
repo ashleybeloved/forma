@@ -16,6 +16,15 @@ func NewUserService(repo *repository.UserRepository) *AuthService {
 	}
 }
 
+func (s *AuthService) Me(userID int) (*model.User, error) {
+	user, err := s.Repo.GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (s *AuthService) Register(username, password string) (*model.User, error) {
 	hashedPassword, err := pkg.HashPassword(password)
 	if err != nil {

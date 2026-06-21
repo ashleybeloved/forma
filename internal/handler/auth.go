@@ -23,6 +23,32 @@ func NewUserHandler(service *service.AuthService, cfg *config.Config) *AuthHandl
 	}
 }
 
+func (h *AuthHandler) Me(c *gin.Context) {
+	id, _ := c.Get("user_id")
+	if id == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "missing user_id in context",
+		})
+		return
+	}
+
+	user, err := h.Service.Me(id.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to get user information",
+		})
+		return
+	}
+
+	response := &model.UserResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func (h *AuthHandler) Register(c *gin.Context) {
 	req := model.RegisterRequest{}
 

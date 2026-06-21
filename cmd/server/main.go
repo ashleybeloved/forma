@@ -48,6 +48,7 @@ func main() {
 	auth := r.Group("")
 	auth.Use(middleware.AuthMiddleware(cfg))
 	{
+		auth.GET("/me", userHandler.Me)
 		auth.POST("/poll", pollHandler.CreatePoll)   // Create Poll
 		auth.PATCH("/poll", pollHandler.UpdatePoll)  // Edit Poll
 		auth.DELETE("/poll", pollHandler.DeletePoll) // Delete Poll
