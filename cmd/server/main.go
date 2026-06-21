@@ -34,10 +34,12 @@ func main() {
 	pollHandler := handler.NewPollHandler(pollService, cfg)
 
 	// - Routes -
+	// -- No Auth --
 	r.GET("/ping", pingHandler.Handle)
 
-	// -- No Auth --
 	r.GET("/poll/:short_id", pollHandler.GetPollByShortID)
+	r.POST("/vote", pollHandler.Vote) // Vote Poll | Query "id"
+
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
 	r.POST("/logout", userHandler.Logout)
@@ -46,10 +48,10 @@ func main() {
 	auth := r.Group("")
 	auth.Use(middleware.AuthMiddleware(cfg))
 	{
-		auth.POST("/poll", pollHandler.CreatePoll)    // Create Poll
-		auth.PATCH("/poll", pollHandler.UpdatePoll)   // Edit Poll
-		auth.DELETE("/poll", pollHandler.DeletePoll)  // Delete Poll
-		auth.GET("/polls", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT and OFFSET
+		auth.POST("/poll", pollHandler.CreatePoll)   // Create Poll
+		auth.PATCH("/poll", pollHandler.UpdatePoll)  // Edit Poll
+		auth.DELETE("/poll", pollHandler.DeletePoll) // Delete Poll
+		auth.GET("/poll", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT & OFFSET
 	}
 
 	slog.Info("Forma Server running on port " + cfg.ServerPort)

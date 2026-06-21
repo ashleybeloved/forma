@@ -82,3 +82,23 @@ func (s *PollService) UpdatePoll(id int, title, description string, config model
 func (s *PollService) DeletePoll(id, creatorID int) error {
 	return s.Repo.DeletePoll(id, creatorID)
 }
+
+func (s *PollService) Vote(userID int, pollShortID string, answers model.Answers, ip string) error {
+	vote := &model.Vote{
+		PollShortID: pollShortID,
+		UserID:      userID,
+		IP:          ip,
+	}
+
+	answersBytes, err := json.Marshal(answers)
+	if err != nil {
+		return ErrMarshalJSON
+	}
+
+	err = s.Repo.Vote(vote, answersBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

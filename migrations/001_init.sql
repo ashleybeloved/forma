@@ -20,12 +20,13 @@ CREATE TABLE IF NOT EXISTS polls (
 
 CREATE TABLE IF NOT EXISTS votes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    poll_id INTEGER NOT NULL,
+    poll_short_id INTEGER NOT NULL,
     user_id INTEGER,
     ip TEXT NOT NULL,
+    guest_token TEXT,
     answers TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+    FOREIGN KEY (poll_short_id) REFERENCES polls(short_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

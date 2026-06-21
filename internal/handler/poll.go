@@ -140,8 +140,8 @@ func (h *PollHandler) DeletePoll(c *gin.Context) {
 }
 
 func (h *PollHandler) GetAllMyPolls(c *gin.Context) {
-	creatorID, _ := c.Get("user_id")
-	if creatorID == nil {
+	userID, _ := c.Get("user_id")
+	if userID == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "missing user_id in context",
 		})
@@ -151,7 +151,7 @@ func (h *PollHandler) GetAllMyPolls(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 
-	polls, err := h.Service.GetAllMyPolls(creatorID.(int), limit, offset)
+	polls, err := h.Service.GetAllMyPolls(userID.(int), limit, offset)
 	if err != nil {
 		switch err {
 		case repository.ErrPollsNotFound:
@@ -163,4 +163,34 @@ func (h *PollHandler) GetAllMyPolls(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, polls)
+}
+
+func (h *PollHandler) Vote(c *gin.Context) {
+	req := &model.NewVoteRequest{}
+
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid input, answers are required field",
+		})
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	if userID == nil {
+		userID = -1
+	}
+
+	pollShortID := c.Query("sid")
+
+	err = h.Service.Vote(userID.(int), pollShortID, req.Answers, c.ClientIP())
+	if err != nil {
+		switch err {
+		case service.ErrMarshalJSON:
+			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrMarshalJSON.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to vote"})
+		}
+		return
+	}
 }

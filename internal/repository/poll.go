@@ -154,3 +154,15 @@ func (r *PollRepository) GetPollsByCreatorID(creatorID, limit, offset int) (poll
 
 	return polls, nil
 }
+
+func (r *PollRepository) Vote(vote *model.Vote, answersBytes []byte) error {
+	_, err := r.DB.Exec(`INSERT INTO votes (poll_short_id, user_id, ip, answers) VALUES (?, ?, ?, ?)`,
+		vote.PollShortID, vote.UserID, vote.IP, answersBytes)
+
+	if err != nil {
+		slog.Error("failed to execute query", "error", err)
+		return err
+	}
+
+	return nil
+}
