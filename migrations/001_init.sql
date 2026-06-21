@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS polls (
 
 CREATE TABLE IF NOT EXISTS votes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    poll_short_id INTEGER NOT NULL,
+    poll_short_id TEXT NOT NULL,
     user_id INTEGER,
     ip TEXT NOT NULL,
     guest_token TEXT,
@@ -38,3 +38,9 @@ CREATE TABLE IF NOT EXISTS vote_answers (
 
     FOREIGN KEY (vote_id) REFERENCES votes(id) ON DELETE CASCADE
 );
+
+--
+
+CREATE INDEX IF NOT EXISTS idx_votes_poll_short_id ON votes(poll_short_id);
+CREATE INDEX IF NOT EXISTS idx_vote_answers_vote_id ON vote_answers(vote_id);
+CREATE INDEX IF NOT EXISTS idx_vote_answers_analytics ON vote_answers(question_id, options);
