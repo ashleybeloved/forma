@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS votes (
     poll_short_id TEXT NOT NULL,
     user_id INTEGER,
     ip TEXT NOT NULL,
+    country_code TEXT NOT NULL DEFAULT 'UNKNOWN',
     guest_token TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

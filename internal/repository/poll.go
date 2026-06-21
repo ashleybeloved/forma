@@ -163,8 +163,8 @@ func (r *PollRepository) Vote(vote *model.Vote, answers *model.Answers) error {
 
 	defer tx.Rollback()
 
-	result, err := tx.Exec(`INSERT INTO votes (poll_short_id, user_id, ip, guest_token) VALUES (?, ?, ?, ?)`,
-		vote.PollShortID, vote.UserID, vote.IP, vote.GuestToken)
+	result, err := tx.Exec(`INSERT INTO votes (poll_short_id, user_id, ip, country_code, guest_token) VALUES (?, ?, ?, ?, ?)`,
+		vote.PollShortID, vote.UserID, vote.IP, vote.CountryCode, vote.GuestToken)
 
 	if err != nil {
 		slog.Error("failed to execute query", "error", err)
@@ -209,7 +209,7 @@ func (r *PollRepository) HasVoted(secured bool, pollShortID string, ip string, g
 			  AND (
 				guest_token = ?
 				OR ip = ?
-				OR (user_id = ? AND user_id != 0)
+				OR (user_id = ? AND user_id != -1)
 			  )
 		);`
 
@@ -218,7 +218,7 @@ func (r *PollRepository) HasVoted(secured bool, pollShortID string, ip string, g
 		WHERE poll_short_id = ?
 		  AND (
 			guest_token = ?
-			OR (user_id = ? AND user_id != 0)
+			OR (user_id = ? AND user_id != -1)
 		  )
 	);`
 

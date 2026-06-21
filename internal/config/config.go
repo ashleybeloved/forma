@@ -9,14 +9,15 @@ import (
 )
 
 type Config struct {
-	ServerPort    string
-	AppVersion    string
-	DatabasePath  string
-	BCryptCost    int
-	JWTTimeToLive int
-	JWTSecretKey  string
-	Domain        string
-	ShortIDLength int
+	ServerPort        string
+	AppVersion        string
+	DatabasePath      string
+	GeoIPDatabasePath string
+	BCryptCost        int
+	JWTTimeToLive     int
+	JWTSecretKey      string
+	Domain            string
+	ShortIDLength     int
 }
 
 func Load() *Config {
@@ -55,6 +56,14 @@ func Load() *Config {
 
 		slog.Warn("Environment Variable not found, using default",
 			slog.String("DB_PATH", dbPath))
+	}
+
+	geoDBPath := os.Getenv("GEOIP_DB_PATH")
+	if geoDBPath == "" {
+		geoDBPath = "./data/GeoLite2-Country.mmdb"
+
+		slog.Warn("Environment Variable not found, using default",
+			slog.String("DB_PATH", geoDBPath))
 	}
 
 	var cost int
@@ -99,13 +108,14 @@ func Load() *Config {
 	}
 
 	return &Config{
-		ServerPort:    port,
-		AppVersion:    appVersion,
-		DatabasePath:  dbPath,
-		BCryptCost:    cost,
-		JWTTimeToLive: ttl,
-		JWTSecretKey:  secretKey,
-		Domain:        domain,
-		ShortIDLength: length,
+		ServerPort:        port,
+		AppVersion:        appVersion,
+		DatabasePath:      dbPath,
+		GeoIPDatabasePath: geoDBPath,
+		BCryptCost:        cost,
+		JWTTimeToLive:     ttl,
+		JWTSecretKey:      secretKey,
+		Domain:            domain,
+		ShortIDLength:     length,
 	}
 }

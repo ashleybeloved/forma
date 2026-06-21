@@ -12,12 +12,14 @@ import (
 type PollService struct {
 	Repo   *repository.PollRepository
 	Config *config.Config
+	GeoIP  *GeoIPService
 }
 
-func NewPollService(repo *repository.PollRepository, cfg *config.Config) *PollService {
+func NewPollService(repo *repository.PollRepository, cfg *config.Config, geoIP *GeoIPService) *PollService {
 	return &PollService{
 		Repo:   repo,
 		Config: cfg,
+		GeoIP:  geoIP,
 	}
 }
 
@@ -97,10 +99,13 @@ func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers
 		userID = claims.UserID
 	}
 
+	countryCode := s.GeoIP.GetCountryCodeFromIP(ip)
+
 	vote := &model.Vote{
 		PollShortID: pollShortID,
 		UserID:      userID,
 		IP:          ip,
+		CountryCode: countryCode,
 		GuestToken:  guestToken,
 	}
 

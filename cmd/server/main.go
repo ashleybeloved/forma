@@ -24,13 +24,15 @@ func main() {
 
 	// Dependency Injection
 	pingHandler := handler.NewPingHandler(cfg)
+	geoIPService := service.NewGeoIPService(cfg.GeoIPDatabasePath)
+	defer geoIPService.Close()
 
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService, cfg)
 
 	pollRepo := repository.NewPollRepository(db)
-	pollService := service.NewPollService(pollRepo, cfg)
+	pollService := service.NewPollService(pollRepo, cfg, geoIPService)
 	pollHandler := handler.NewPollHandler(pollService, cfg)
 
 	// - Routes -

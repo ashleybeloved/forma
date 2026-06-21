@@ -40,6 +40,7 @@ type Vote struct {
 	PollShortID string  `json:"poll_short_id"`
 	UserID      int     `json:"user_id"`
 	IP          string  `json:"ip"`
+	CountryCode string  `json:"country_code"`
 	GuestToken  string  `json:"guest_token"`
 	Answers     Answers `json:"answers"`
 }
