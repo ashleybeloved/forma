@@ -36,13 +36,17 @@ func main() {
 	// - Routes -
 	// -- No Auth --
 	r.GET("/ping", pingHandler.Handle)
-
-	r.GET("/poll/:short_id", pollHandler.GetPollByShortID)
-	r.POST("/poll/:short_id/vote", pollHandler.Vote)
-
 	r.POST("/register", userHandler.Register)
 	r.POST("/login", userHandler.Login)
 	r.POST("/logout", userHandler.Logout)
+
+	// -- Guest Token Required --
+	guest := r.Group("")
+	guest.Use(middleware.GuestMiddleware(cfg))
+	{
+		guest.GET("/poll/:short_id", pollHandler.GetPollByShortID) // Get Poll
+		guest.POST("/poll/:short_id/vote", pollHandler.Vote)       // Vote in Poll
+	}
 
 	// -- Need Auth --
 	auth := r.Group("")
