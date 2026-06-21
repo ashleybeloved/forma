@@ -104,7 +104,17 @@ func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers
 		GuestToken:  guestToken,
 	}
 
-	err := s.Repo.Vote(vote, answers)
+	// Mock "secured" field for a time
+	voted, err := s.Repo.HasVoted(false, vote.PollShortID, vote.IP, vote.GuestToken, vote.UserID)
+	if err != nil {
+		return err
+	}
+
+	if voted {
+		return ErrAlreadyVoted
+	}
+
+	err = s.Repo.Vote(vote, answers)
 	if err != nil {
 		return err
 	}

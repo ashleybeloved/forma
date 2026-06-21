@@ -200,3 +200,40 @@ func (r *PollRepository) Vote(vote *model.Vote, answers *model.Answers) error {
 
 	return nil
 }
+
+func (r *PollRepository) HasVoted(secured bool, pollShortID string, ip string, guestToken string, userID int) (bool, error) {
+	querySecured := `
+		SELECT EXISTS(
+			SELECT 1 FROM votes
+			WHERE poll_short_id = ?
+			  AND (
+				guest_token = ?
+				OR ip = ?
+				OR (user_id = ? AND user_id != 0)
+			  )
+		);`
+
+	query := `SELECT EXISTS(
+		SELECT 1 FROM votes
+		WHERE poll_short_id = ?
+		  AND (
+			guest_token = ?
+			OR (user_id = ? AND user_id != 0)
+		  )
+	);`
+
+	var exists bool
+	var err error
+
+	if secured {
+		err = r.DB.QueryRow(querySecured, pollShortID, guestToken, ip, userID).Scan(&exists)
+	} else {
+		err = r.DB.QueryRow(query, pollShortID, guestToken, userID).Scan(&exists)
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

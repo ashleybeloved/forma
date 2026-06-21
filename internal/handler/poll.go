@@ -194,9 +194,13 @@ func (h *PollHandler) Vote(c *gin.Context) {
 		switch err {
 		case service.ErrMarshalJSON:
 			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrMarshalJSON.Error()})
+		case service.ErrAlreadyVoted:
+			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrAlreadyVoted.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to vote"})
 		}
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "successfully voted"})
 }
