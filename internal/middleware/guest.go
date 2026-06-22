@@ -17,7 +17,7 @@ func GuestMiddleware(cfg *config.Config) gin.HandlerFunc {
 		if err != nil || cookie == "" {
 			token = uuid.New().String()
 
-			c.SetCookie("guest_token", token, cfg.JWTTimeToLive*3600, "/", cfg.Domain, false, true)
+			c.SetCookie("guest_token", token, cfg.JWTTimeToLive*3600, "/", cfg.Domain, cfg.HTTPS, true)
 		} else {
 			token = cookie
 		}

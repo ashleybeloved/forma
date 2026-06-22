@@ -11,6 +11,7 @@ import (
 type Config struct {
 	ServerPort        string
 	AppVersion        string
+	HTTPS             bool
 	DatabasePath      string
 	GeoIPDatabasePath string
 	BCryptCost        int
@@ -40,6 +41,19 @@ func Load() *Config {
 
 		slog.Warn("Environment Variable not found, using default",
 			slog.String("DOMAIN", domain))
+	}
+
+	var https bool
+	httpsStr := os.Getenv("HTTPS")
+	if httpsStr == "" {
+		httpsStr = "false"
+
+		slog.Warn("Environment Variable not found, using default",
+			slog.String("HTTPS", httpsStr))
+	} else if httpsStr == "false" {
+		https = false
+	} else {
+		https = true
 	}
 
 	appVersion := os.Getenv("APP_VERSION")
@@ -110,6 +124,7 @@ func Load() *Config {
 	return &Config{
 		ServerPort:        port,
 		AppVersion:        appVersion,
+		HTTPS:             https,
 		DatabasePath:      dbPath,
 		GeoIPDatabasePath: geoDBPath,
 		BCryptCost:        cost,

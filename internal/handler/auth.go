@@ -81,7 +81,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("forma_token", token, h.Config.JWTTimeToLive*3600, "/", h.Config.Domain, false, true)
+	c.SetCookie("forma_token", token, h.Config.JWTTimeToLive*3600, "/", h.Config.Domain, h.Config.HTTPS, true)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "registration successful",
@@ -123,14 +123,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("forma_token", token, h.Config.JWTTimeToLive*3600, "/", h.Config.Domain, false, true)
+	c.SetCookie("forma_token", token, h.Config.JWTTimeToLive*3600, "/", h.Config.Domain, h.Config.HTTPS, true)
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "login into " + user.Username + " successful",
 	})
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
-	c.SetCookie("forma_token", "", -1, "/", h.Config.Domain, false, true)
+	c.SetCookie("forma_token", "", -1, "/", h.Config.Domain, h.Config.HTTPS, true)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "logout successful",
