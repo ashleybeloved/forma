@@ -31,22 +31,18 @@ type Answer struct {
 	Options    []string `json:"options" binding:"required"`
 }
 
-type Answers struct {
-	Answers []Answer `json:"answers" binding:"required"`
-}
-
 type Vote struct {
-	ID          int     `json:"id"`
-	PollShortID string  `json:"poll_short_id"`
-	UserID      int     `json:"user_id"`
-	IP          string  `json:"ip"`
-	CountryCode string  `json:"country_code"`
-	GuestToken  string  `json:"guest_token"`
-	Answers     Answers `json:"answers"`
+	ID          int      `json:"id"`
+	PollShortID string   `json:"poll_short_id"`
+	UserID      int      `json:"user_id"`
+	IP          string   `json:"ip"`
+	CountryCode string   `json:"country_code"`
+	GuestToken  string   `json:"guest_token"`
+	Answers     []Answer `json:"answers"`
 }
 
 type NewVoteRequest struct {
-	Answers Answers `json:"answers" binding:"required"`
+	Answers []Answer `json:"answers" binding:"required"`
 }
 
 type NewPollRequest struct {

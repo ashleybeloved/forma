@@ -85,7 +85,7 @@ func (s *PollService) DeletePoll(id, creatorID int) error {
 	return s.Repo.DeletePoll(id, creatorID)
 }
 
-func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers *model.Answers) error {
+func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers []model.Answer) error {
 	var userID int
 
 	if tokenStr == "" {
@@ -125,4 +125,22 @@ func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers
 	}
 
 	return nil
+}
+
+func (s *PollService) CheckVote(tokenStr, pollShortID, guestToken, ip string) (bool, error) {
+	var userID int
+
+	if tokenStr == "" {
+		userID = -1
+	} else {
+		claims, err := pkg.ValidateToken(tokenStr, s.Config.JWTSecretKey)
+		if err != nil {
+			return true, ErrInvalidToken
+		}
+
+		userID = claims.UserID
+	}
+
+	// Mock "secured" field for a time
+	return s.Repo.HasVoted(false, pollShortID, ip, guestToken, userID)
 }

@@ -189,7 +189,7 @@ func (h *PollHandler) Vote(c *gin.Context) {
 		return
 	}
 
-	err = h.Service.Vote(tokenStr, c.Param("short_id"), guestToken.(string), c.ClientIP(), &req.Answers)
+	err = h.Service.Vote(tokenStr, c.Param("short_id"), guestToken.(string), c.ClientIP(), req.Answers)
 	if err != nil {
 		switch err {
 		case service.ErrMarshalJSON:
@@ -203,4 +203,37 @@ func (h *PollHandler) Vote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "successfully voted"})
+}
+
+func (h *PollHandler) CheckVote(c *gin.Context) {
+	tokenStr, err := c.Cookie("forma_token")
+	if err != nil {
+		tokenStr = ""
+	}
+
+	guestToken, _ := c.Get("guest_token")
+	if guestToken == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missed guest token",
+		})
+		return
+	}
+
+	voted, err := h.Service.CheckVote(tokenStr, c.Param("short_id"), guestToken.(string), c.ClientIP())
+	if err != nil {
+		switch err {
+		case service.ErrInvalidToken:
+			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrInvalidToken.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to check vote"})
+		}
+		return
+	}
+
+	if voted {
+		c.JSON(http.StatusOK, gin.H{"voted": true})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"voted": false})
 }

@@ -155,7 +155,7 @@ func (r *PollRepository) GetPollsByCreatorID(creatorID, limit, offset int) (poll
 	return polls, nil
 }
 
-func (r *PollRepository) Vote(vote *model.Vote, answers *model.Answers) error {
+func (r *PollRepository) Vote(vote *model.Vote, answers []model.Answer) error {
 	tx, err := r.DB.Begin()
 	if err != nil {
 		return err
@@ -177,7 +177,7 @@ func (r *PollRepository) Vote(vote *model.Vote, answers *model.Answers) error {
 		return err
 	}
 
-	for _, answer := range answers.Answers {
+	for _, answer := range answers {
 		for _, option := range answer.Options {
 			_, err := tx.Exec(`INSERT INTO vote_answers (vote_id, question_id, options) VALUES (?, ?, ?)`,
 				int(id), answer.QuestionID, option)

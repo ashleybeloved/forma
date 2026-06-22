@@ -48,6 +48,7 @@ func main() {
 	{
 		guest.GET("/poll/:short_id", pollHandler.GetPollByShortID) // Get Poll
 		guest.POST("/poll/:short_id/vote", pollHandler.Vote)       // Vote in Poll
+		guest.POST("/poll/:short_id/check", pollHandler.CheckVote) // Check vote user
 	}
 
 	// -- Need Auth --
