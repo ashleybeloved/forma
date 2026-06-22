@@ -26,6 +26,23 @@ type Poll struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
+type NewPollRequest struct {
+	Title       string     `json:"title" binding:"required"`
+	Description string     `json:"description"`
+	Config      PollConfig `json:"config" binding:"required"`
+}
+
+type UpdatePollRequest struct {
+	ID          int        `json:"id" binding:"required"`
+	Title       string     `json:"title" binding:"required"`
+	Description string     `json:"description"`
+	Config      PollConfig `json:"config" binding:"required"`
+}
+
+type DeletePollRequest struct {
+	ID int `json:"id" binding:"required"`
+}
+
 type Answer struct {
 	QuestionID int      `json:"question_id" binding:"required"`
 	Options    []string `json:"options" binding:"required"`
@@ -43,21 +60,4 @@ type Vote struct {
 
 type NewVoteRequest struct {
 	Answers []Answer `json:"answers" binding:"required"`
-}
-
-type NewPollRequest struct {
-	Title       string     `json:"title" binding:"required"`
-	Description string     `json:"description"`
-	Config      PollConfig `json:"config" binding:"required"`
-}
-
-type UpdatePollRequest struct {
-	ID          int        `json:"id" binding:"required"`
-	Title       string     `json:"title" binding:"required"`
-	Description string     `json:"description"`
-	Config      PollConfig `json:"config" binding:"required"`
-}
-
-type DeletePollRequest struct {
-	ID int `json:"id" binding:"required"`
 }

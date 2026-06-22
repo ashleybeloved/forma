@@ -237,3 +237,7 @@ func (r *PollRepository) HasVoted(secured bool, pollShortID string, ip string, g
 
 	return exists, nil
 }
+
+func (r *PollRepository) PollStatistics(shortID string) error {
+	return nil
+}

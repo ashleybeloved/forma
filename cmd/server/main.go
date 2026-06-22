@@ -76,6 +76,8 @@ func main() {
 		auth.PATCH("/poll", pollHandler.UpdatePoll)  // Edit Poll
 		auth.DELETE("/poll", pollHandler.DeletePoll) // Delete Poll
 		auth.GET("/poll", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT & OFFSET
+
+		auth.GET("/poll/:short_id/stats")
 	}
 
 	// -!- Start server & Graceful Shutdown -!-
