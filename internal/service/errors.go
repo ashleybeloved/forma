@@ -7,4 +7,5 @@ var (
 	ErrMarshalJSON     = errors.New("invalid JSON in config")
 	ErrInvalidToken    = errors.New("invalid or expired token")
 	ErrAlreadyVoted    = errors.New("user already voted in poll")
+	ErrNotUserPoll     = errors.New("invalid user poll")
 )

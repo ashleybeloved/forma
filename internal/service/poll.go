@@ -144,3 +144,17 @@ func (s *PollService) CheckVote(tokenStr, pollShortID, guestToken, ip string) (b
 	// Mock "secured" field for a time
 	return s.Repo.HasVoted(false, pollShortID, ip, guestToken, userID)
 }
+
+func (s *PollService) GetPollStats(userID int, pollShortID string) (*model.Stats, error) {
+	creator := s.Repo.IsCreator(userID, pollShortID)
+	if !creator {
+		return nil, ErrNotUserPoll
+	}
+
+	stats, err := s.Repo.GetPollStats(pollShortID)
+	if err != nil {
+		return nil, err
+	}
+
+	return stats, nil
+}

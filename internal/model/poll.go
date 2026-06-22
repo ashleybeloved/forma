@@ -61,3 +61,25 @@ type Vote struct {
 type NewVoteRequest struct {
 	Answers []Answer `json:"answers" binding:"required"`
 }
+
+type Stats struct {
+	TotalVotes      int              `json:"total_votes"`
+	QuestionResults []QuestionResult `json:"results"`
+	TopCountries    []CountryResult  `json:"top_countries"`
+}
+
+type QuestionResult struct {
+	QuestionID int      `json:"id"`
+	Options    []Result `json:"options"`
+}
+
+type Result struct {
+	Option     string  `json:"option"`
+	Votes      int     `json:"votes"`
+	Percentage float64 `json:"percentage"`
+}
+
+type CountryResult struct {
+	CountryCode string `json:"country_code"`
+	Votes       int    `json:"votes"`
+}

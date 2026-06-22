@@ -231,13 +231,149 @@ func (r *PollRepository) HasVoted(secured bool, pollShortID string, ip string, g
 		err = r.DB.QueryRow(query, pollShortID, guestToken, userID).Scan(&exists)
 	}
 
-	if err != nil {
+	if err == sql.ErrNoRows {
 		return false, err
 	}
 
 	return exists, nil
 }
 
-func (r *PollRepository) PollStatistics(shortID string) error {
-	return nil
+func (r *PollRepository) IsCreator(userID int, pollShortID string) bool {
+	var creator bool
+
+	err := r.DB.QueryRow(`
+		SELECT EXISTS (
+			SELECT 1
+			FROM polls
+			WHERE creator_id = ? AND short_id = ?
+		)`,
+		userID, pollShortID,
+	).Scan(&creator)
+
+	if err != nil {
+		slog.Error("failed to check poll ownership", "error", err, "user_id", userID, "poll", pollShortID)
+		return false
+	}
+
+	return creator
+}
+
+// i really regret for i dont use the fucking sqlx or orm;
+// i need more lessons for sql logic and algos lol idk,
+// this one created by slopmachine
+func (r *PollRepository) GetPollStats(shortID string) (*model.Stats, error) {
+	var totalVotes int
+
+	// Query #1: get all unique totalVotes from poll_short_id
+	err := r.DB.QueryRow(`
+			SELECT COUNT(id)
+			FROM votes
+			WHERE poll_short_id = ?`,
+		shortID).Scan(&totalVotes)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrPollNotFound
+		}
+		slog.Error("failed to execute query", "error", err)
+		return nil, err
+	}
+
+	stats := &model.Stats{
+		TotalVotes:      totalVotes,
+		QuestionResults: []model.QuestionResult{},
+		TopCountries:    []model.CountryResult{},
+	}
+
+	if totalVotes == 0 {
+		return stats, nil
+	}
+
+	// Query #2: get question answers from all questions
+	rows, err := r.DB.Query(`
+			SELECT
+				va.question_id,
+				va.options,
+				COUNT(*)
+			FROM vote_answers va
+			JOIN votes v ON va.vote_id = v.id
+			WHERE v.poll_short_id = ?
+			GROUP BY va.question_id, va.options
+			ORDER BY va.question_id ASC, COUNT(*) DESC`,
+		shortID)
+
+	if err != nil {
+		slog.Error("failed to execute query", "error", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// use this map like index book for sort votes by questions
+	qIDToIndex := make(map[int]int)
+
+	for rows.Next() {
+		var qID int
+		var option string
+		var votesCount int
+
+		if err := rows.Scan(&qID, &option, &votesCount); err != nil {
+			return nil, err
+		}
+
+		percentage := (float64(votesCount) / float64(totalVotes)) * 100
+		res := model.Result{
+			Option:     option,
+			Votes:      votesCount,
+			Percentage: percentage,
+		}
+
+		// if question in map exists add vote, if doesnt create a new one and add vote
+		index, exists := qIDToIndex[qID]
+		if !exists {
+			newQResult := model.QuestionResult{
+				QuestionID: qID,
+				Options:    []model.Result{res},
+			}
+			stats.QuestionResults = append(stats.QuestionResults, newQResult)
+			qIDToIndex[qID] = len(stats.QuestionResults) - 1
+		} else {
+			stats.QuestionResults[index].Options = append(stats.QuestionResults[index].Options, res)
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		slog.Error("failed to scan row", "error", err)
+		return nil, err
+	}
+
+	// Query #3: get top countries by votes
+	countryRows, err := r.DB.Query(`
+				SELECT country_code, COUNT(*) AS votes_count
+				FROM votes
+				WHERE poll_short_id = ?
+				GROUP BY country_code
+				ORDER BY votes_count DESC`,
+		shortID)
+
+	if err != nil {
+		slog.Error("failed to execute country query", "error", err)
+		return nil, err
+	}
+	defer countryRows.Close()
+
+	// scanned rows append to top countries
+	for countryRows.Next() {
+		var cResult model.CountryResult
+		if err := countryRows.Scan(&cResult.CountryCode, &cResult.Votes); err != nil {
+			return nil, err
+		}
+		stats.TopCountries = append(stats.TopCountries, cResult)
+	}
+
+	if err = countryRows.Err(); err != nil {
+		slog.Error("failed to scan country row", "error", err)
+		return nil, err
+	}
+
+	return stats, nil
 }

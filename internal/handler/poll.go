@@ -237,3 +237,28 @@ func (h *PollHandler) CheckVote(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"voted": false})
 }
+
+func (h *PollHandler) GetPollStats(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+	if userID == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "missing user_id in context",
+		})
+		return
+	}
+
+	shortID := c.Param("short_id")
+
+	stats, err := h.Service.GetPollStats(userID.(int), shortID)
+	if err != nil {
+		switch err {
+		case service.ErrNotUserPoll:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrNotUserPoll.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get stats"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, stats)
+}

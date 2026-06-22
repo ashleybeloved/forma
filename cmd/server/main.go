@@ -77,7 +77,7 @@ func main() {
 		auth.DELETE("/poll", pollHandler.DeletePoll) // Delete Poll
 		auth.GET("/poll", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT & OFFSET
 
-		auth.GET("/poll/:short_id/stats")
+		auth.GET("/poll/:short_id/stats", pollHandler.GetPollStats)
 	}
 
 	// -!- Start server & Graceful Shutdown -!-

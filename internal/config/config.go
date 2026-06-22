@@ -43,17 +43,12 @@ func Load() *Config {
 			slog.String("DOMAIN", domain))
 	}
 
-	var https bool
 	httpsStr := os.Getenv("HTTPS")
-	if httpsStr == "" {
-		httpsStr = "false"
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("HTTPS", httpsStr))
-	} else if httpsStr == "false" {
-		https = false
-	} else {
+	https, err := strconv.ParseBool(httpsStr)
+	if err != nil {
 		https = true
+		slog.Warn("Environment Variable not found or invalid, using default",
+			slog.String("HTTPS", "true"))
 	}
 
 	appVersion := os.Getenv("APP_VERSION")
