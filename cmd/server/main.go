@@ -1,12 +1,18 @@
 package main
 
 import (
+	"context"
 	"forma/internal/config"
 	"forma/internal/handler"
 	"forma/internal/middleware"
 	"forma/internal/repository"
 	"forma/internal/service"
 	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +23,13 @@ func main() {
 
 	// Connect Database
 	db := repository.Connect(cfg.DatabasePath)
+	defer func() {
+		slog.Info("Close connection with database...")
+		err := db.Close()
+		if err != nil {
+			slog.Error("failed to close connection with database", "error", err)
+		}
+	}()
 
 	// Setup Gin
 	gin.SetMode(gin.ReleaseMode)
@@ -25,7 +38,10 @@ func main() {
 	// Dependency Injection
 	pingHandler := handler.NewPingHandler(cfg)
 	geoIPService := service.NewGeoIPService(cfg.GeoIPDatabasePath)
-	defer geoIPService.Close()
+	defer func() {
+		slog.Info("Close connection with GeoIP Service...")
+		geoIPService.Close()
+	}()
 
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
@@ -62,6 +78,27 @@ func main() {
 		auth.GET("/poll", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT & OFFSET
 	}
 
-	slog.Info("Forma Server running on port " + cfg.ServerPort)
-	r.Run(cfg.ServerPort)
+	// -!- Start server & Graceful Shutdown -!-
+	server := &http.Server{
+		Addr:    cfg.ServerPort,
+		Handler: r,
+	}
+
+	go func() {
+		slog.Info("Forma Server running on port " + cfg.ServerPort)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("failed to start server", "error", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	<-quit
+	slog.Info("Server get signal for Graceful Shutdown...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	server.Shutdown(ctx)
 }
