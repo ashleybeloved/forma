@@ -22,6 +22,8 @@ type Poll struct {
 	Config      PollConfig `json:"config"`
 	CreatorID   int        `json:"creator_id"`
 	ShortID     string     `json:"short_id"`
+	Secured     bool       `json:"secured"`
+	AuthOnly    bool       `json:"auth_only"`
 	EditedAt    time.Time  `json:"edited_at"`
 	CreatedAt   time.Time  `json:"created_at"`
 }
@@ -30,6 +32,8 @@ type NewPollRequest struct {
 	Title       string     `json:"title" binding:"required"`
 	Description string     `json:"description"`
 	Config      PollConfig `json:"config" binding:"required"`
+	Secured     bool       `json:"secured" binding:"required"`
+	AuthOnly    bool       `json:"auth_only" binding:"required"`
 }
 
 type UpdatePollRequest struct {
@@ -37,6 +41,8 @@ type UpdatePollRequest struct {
 	Title       string     `json:"title" binding:"required"`
 	Description string     `json:"description"`
 	Config      PollConfig `json:"config" binding:"required"`
+	Secured     bool       `json:"secured" binding:"required"`
+	AuthOnly    bool       `json:"auth_only" binding:"required"`
 }
 
 type DeletePollRequest struct {

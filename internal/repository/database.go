@@ -9,7 +9,9 @@ import (
 )
 
 func Connect(dbPath string) *sql.DB {
-	db, err := sql.Open("sqlite", dbPath)
+	dbPathWAL := dbPath + "?_auth_journal_mode=WAL&_loc=auto"
+
+	db, err := sql.Open("sqlite", dbPathWAL)
 	if err != nil {
 		slog.Error("failed to open database", "info:", err)
 		return nil

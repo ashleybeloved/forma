@@ -46,7 +46,7 @@ func (h *PollHandler) CreatePoll(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid input, title and config are required fields",
+			"error": "invalid input, required fields not found",
 		})
 		return
 	}
@@ -59,7 +59,7 @@ func (h *PollHandler) CreatePoll(c *gin.Context) {
 		return
 	}
 
-	poll, err := h.Service.CreatePoll(req.Title, req.Description, req.Config, creatorID.(int))
+	poll, err := h.Service.CreatePoll(req.Title, req.Description, req.Config, creatorID.(int), req.Secured, req.AuthOnly)
 	if err != nil {
 		switch err {
 		case service.ErrMarshalJSON:
@@ -92,7 +92,7 @@ func (h *PollHandler) UpdatePoll(c *gin.Context) {
 		return
 	}
 
-	err = h.Service.UpdatePoll(req.ID, req.Title, req.Description, req.Config, creatorID.(int))
+	err = h.Service.UpdatePoll(req.ID, req.Title, req.Description, req.Config, creatorID.(int), req.Secured, req.AuthOnly)
 	if err != nil {
 		switch err {
 		case repository.ErrPollNotFound:
@@ -196,6 +196,8 @@ func (h *PollHandler) Vote(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrMarshalJSON.Error()})
 		case service.ErrAlreadyVoted:
 			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrAlreadyVoted.Error()})
+		case service.ErrAuthOnly:
+			c.JSON(http.StatusUnauthorized, gin.H{"error": service.ErrAuthOnly.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to vote"})
 		}

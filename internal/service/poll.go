@@ -6,7 +6,6 @@ import (
 	"forma/internal/model"
 	"forma/internal/pkg"
 	"forma/internal/repository"
-	"time"
 )
 
 type PollService struct {
@@ -41,7 +40,7 @@ func (s *PollService) GetAllMyPolls(creatorID, limit, offset int) ([]model.Poll,
 	return polls, nil
 }
 
-func (s *PollService) CreatePoll(title, description string, config model.PollConfig, creatorID int) (*model.Poll, error) {
+func (s *PollService) CreatePoll(title, description string, config model.PollConfig, userID int, secured, authOnly bool) (*model.Poll, error) {
 	shortID := pkg.GenerateShortID(s.Config.ShortIDLength)
 
 	configBytes, err := json.Marshal(config)
@@ -54,8 +53,9 @@ func (s *PollService) CreatePoll(title, description string, config model.PollCon
 		Description: description,
 		Config:      config,
 		ShortID:     shortID,
-		CreatorID:   creatorID,
-		CreatedAt:   time.Now(),
+		CreatorID:   userID,
+		Secured:     secured,
+		AuthOnly:    authOnly,
 	}
 
 	err = s.Repo.CreatePoll(poll, configBytes)
@@ -66,7 +66,7 @@ func (s *PollService) CreatePoll(title, description string, config model.PollCon
 	return poll, nil
 }
 
-func (s *PollService) UpdatePoll(id int, title, description string, config model.PollConfig, userID int) error {
+func (s *PollService) UpdatePoll(id int, title, description string, config model.PollConfig, userID int, secured, authOnly bool) error {
 	configBytes, err := json.Marshal(config)
 	if err != nil {
 		return ErrMarshalJSON
@@ -76,6 +76,8 @@ func (s *PollService) UpdatePoll(id int, title, description string, config model
 		ID:          id,
 		Title:       title,
 		Description: description,
+		Secured:     secured,
+		AuthOnly:    authOnly,
 	}
 
 	return s.Repo.UpdatePoll(poll, configBytes, userID)
@@ -99,6 +101,15 @@ func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers
 		userID = claims.UserID
 	}
 
+	poll, err := s.Repo.GetPollByShortID(pollShortID)
+	if err != nil {
+		return err
+	}
+
+	if poll.AuthOnly && userID == -1 {
+		return ErrAuthOnly
+	}
+
 	countryCode := s.GeoIP.GetCountryCodeFromIP(ip)
 
 	vote := &model.Vote{
@@ -109,8 +120,7 @@ func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers
 		GuestToken:  guestToken,
 	}
 
-	// Mock "secured" field for a time
-	voted, err := s.Repo.HasVoted(false, vote.PollShortID, vote.IP, vote.GuestToken, vote.UserID)
+	voted, err := s.Repo.HasVoted(poll.Secured, vote.PollShortID, vote.IP, vote.GuestToken, vote.UserID)
 	if err != nil {
 		return err
 	}
@@ -141,8 +151,16 @@ func (s *PollService) CheckVote(tokenStr, pollShortID, guestToken, ip string) (b
 		userID = claims.UserID
 	}
 
-	// Mock "secured" field for a time
-	return s.Repo.HasVoted(false, pollShortID, ip, guestToken, userID)
+	poll, err := s.Repo.GetPollByShortID(pollShortID)
+	if err != nil {
+		return true, err
+	}
+
+	if poll.AuthOnly && userID == -1 {
+		return true, ErrAuthOnly
+	}
+
+	return s.Repo.HasVoted(poll.Secured, pollShortID, ip, guestToken, userID)
 }
 
 func (s *PollService) GetPollStats(userID int, pollShortID string) (*model.Stats, error) {
