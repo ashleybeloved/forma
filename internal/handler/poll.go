@@ -59,7 +59,7 @@ func (h *PollHandler) CreatePoll(c *gin.Context) {
 		return
 	}
 
-	poll, err := h.Service.CreatePoll(req.Title, req.Description, req.Config, creatorID.(int), req.Secured, req.AuthOnly)
+	poll, err := h.Service.CreatePoll(req.Title, req.Description, req.Config, creatorID.(int), *req.Secured, *req.AuthOnly)
 	if err != nil {
 		switch err {
 		case service.ErrMarshalJSON:
@@ -92,7 +92,7 @@ func (h *PollHandler) UpdatePoll(c *gin.Context) {
 		return
 	}
 
-	err = h.Service.UpdatePoll(req.ID, req.Title, req.Description, req.Config, creatorID.(int), req.Secured, req.AuthOnly)
+	err = h.Service.UpdatePoll(req.ID, req.Title, req.Description, req.Config, creatorID.(int), *req.Secured, *req.AuthOnly)
 	if err != nil {
 		switch err {
 		case repository.ErrPollNotFound:
