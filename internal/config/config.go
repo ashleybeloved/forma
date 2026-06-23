@@ -9,123 +9,76 @@ import (
 )
 
 type Config struct {
-	ServerPort        string
-	AppVersion        string
-	HTTPS             bool
-	DatabasePath      string
-	GeoIPDatabasePath string
-	BCryptCost        int
-	JWTTimeToLive     int
-	JWTSecretKey      string
-	Domain            string
-	ShortIDLength     int
+	ServerPort         string
+	AppVersion         string
+	HTTPS              bool
+	DatabasePath       string
+	GeoIPDatabasePath  string
+	BCryptCost         int
+	JWTTimeToLive      int
+	JWTSecretKey       string
+	Domain             string
+	ShortIDLength      int
+	PasswordMinSymbols int
+	PasswordMaxSymbols int
+	UsernameMinSymbols int
+	UsernameMaxSymbols int
 }
 
 func Load() *Config {
-	err := godotenv.Load(".env")
-	if err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		slog.Error("failed to initialize .env file")
-	}
-
-	port := os.Getenv("SERVER_PORT")
-	if port == "" {
-		port = ":8080"
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("SERVER_PORT", port))
-	}
-
-	domain := os.Getenv("DOMAIN")
-	if domain == "" {
-		domain = ":8080"
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("DOMAIN", domain))
-	}
-
-	httpsStr := os.Getenv("HTTPS")
-	https, err := strconv.ParseBool(httpsStr)
-	if err != nil {
-		https = true
-		slog.Warn("Environment Variable not found or invalid, using default",
-			slog.String("HTTPS", "true"))
-	}
-
-	appVersion := os.Getenv("APP_VERSION")
-	if appVersion == "" {
-		appVersion = "undefined"
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("APP_VERSION", appVersion))
-	}
-
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = "./data/forma.db"
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("DB_PATH", dbPath))
-	}
-
-	geoDBPath := os.Getenv("GEOIP_DB_PATH")
-	if geoDBPath == "" {
-		geoDBPath = "./data/GeoLite2-Country.mmdb"
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("DB_PATH", geoDBPath))
-	}
-
-	var cost int
-	costStr := os.Getenv("BCRYPT_COST")
-	if costStr == "" {
-		costStr = "12"
-		cost, _ = strconv.Atoi(costStr)
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("BCRYPT_COST", costStr))
-	} else {
-		cost, _ = strconv.Atoi(costStr)
-	}
-
-	var ttl int
-	ttlStr := os.Getenv("JWT_TTL")
-	if ttlStr == "" {
-		ttlStr = "4380"
-		ttl, _ = strconv.Atoi(ttlStr)
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("JWT_TTL", ttlStr))
-	} else {
-		ttl, _ = strconv.Atoi(ttlStr)
-	}
-
-	var length int
-	lengthStr := os.Getenv("SHORT_ID_LENGTH")
-	if lengthStr == "" {
-		lengthStr = "8"
-		length, _ = strconv.Atoi(lengthStr)
-
-		slog.Warn("Environment Variable not found, using default",
-			slog.String("SHORT_ID_LENGTH", lengthStr))
-	} else {
-		length, _ = strconv.Atoi(lengthStr)
 	}
 
 	secretKey := os.Getenv("JWT_SECRET_KEY")
 	if secretKey == "" {
-		slog.Error("failed to load environment variable jwt secret key")
+		slog.Error("failed to load environment variable jwt secret key, please input secret key to env!")
+		os.Exit(1)
 	}
 
 	return &Config{
-		ServerPort:        port,
-		AppVersion:        appVersion,
-		HTTPS:             https,
-		DatabasePath:      dbPath,
-		GeoIPDatabasePath: geoDBPath,
-		BCryptCost:        cost,
-		JWTTimeToLive:     ttl,
-		JWTSecretKey:      secretKey,
-		Domain:            domain,
-		ShortIDLength:     length,
+		ServerPort:         getEnvString("SERVER_PORT", ":8080"),
+		Domain:             getEnvString("DOMAIN", ":8080"),
+		AppVersion:         getEnvString("APP_VERSION", "undefined"),
+		DatabasePath:       getEnvString("DB_PATH", "./data/forma.db"),
+		GeoIPDatabasePath:  getEnvString("GEOIP_DB_PATH", "./data/GeoLite2-Country.mmdb"),
+		JWTSecretKey:       secretKey,
+		HTTPS:              getEnvBool("HTTPS", true),
+		BCryptCost:         getEnvInt("BCRYPT_COST", 12),
+		JWTTimeToLive:      getEnvInt("JWT_TTL", 4380),
+		ShortIDLength:      getEnvInt("SHORT_ID_LENGTH", 8),
+		PasswordMinSymbols: getEnvInt("PASSWORD_MIN", 4),
+		PasswordMaxSymbols: getEnvInt("PASSWORD_MAX", 4),
+		UsernameMinSymbols: getEnvInt("USERNAME_MIN", 4),
+		UsernameMaxSymbols: getEnvInt("USERNAME_MAX", 4),
 	}
+}
+
+func getEnvString(key, defaultValue string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		slog.Warn("Environment Variable not found, using default", slog.String(key, defaultValue))
+		return defaultValue
+	}
+	return val
+}
+
+func getEnvBool(key string, defaultValue bool) bool {
+	valStr := os.Getenv(key)
+	val, err := strconv.ParseBool(valStr)
+	if err != nil {
+		slog.Warn("Environment Variable not found or invalid, using default", slog.String(key, strconv.FormatBool(defaultValue)))
+		return defaultValue
+	}
+	return val
+}
+
+func getEnvInt(key string, defaultValue int) int {
+	valStr := os.Getenv(key)
+	val, err := strconv.Atoi(valStr)
+	if err != nil {
+		slog.Warn("Environment Variable not found or invalid, using default", slog.String(key, strconv.Itoa(defaultValue)))
+		return defaultValue
+	}
+	return val
 }
