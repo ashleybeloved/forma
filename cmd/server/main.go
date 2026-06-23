@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,6 +35,16 @@ func main() {
 	// Setup Gin
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:3000", // For Dev
+			"https://" + cfg.Domain, // For Prod
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Dependency Injection
 	pingHandler := handler.NewPingHandler(cfg)
@@ -78,7 +89,7 @@ func main() {
 		auth.DELETE("/poll", pollHandler.DeletePoll) // Delete Poll
 		auth.GET("/poll", pollHandler.GetAllMyPolls) // Get All Profile Polls | Queries LIMIT & OFFSET
 
-		auth.GET("/poll/:short_id/stats", pollHandler.GetPollStats)
+		auth.GET("/poll/:short_id/stats", pollHandler.GetPollStats) // Statistics
 	}
 
 	// -!- Start server & Graceful Shutdown -!-
