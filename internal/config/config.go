@@ -48,9 +48,9 @@ func Load() *Config {
 		JWTTimeToLive:      getEnvInt("JWT_TTL", 4380),
 		ShortIDLength:      getEnvInt("SHORT_ID_LENGTH", 8),
 		PasswordMinSymbols: getEnvInt("PASSWORD_MIN", 4),
-		PasswordMaxSymbols: getEnvInt("PASSWORD_MAX", 4),
+		PasswordMaxSymbols: getEnvInt("PASSWORD_MAX", 128),
 		UsernameMinSymbols: getEnvInt("USERNAME_MIN", 4),
-		UsernameMaxSymbols: getEnvInt("USERNAME_MAX", 4),
+		UsernameMaxSymbols: getEnvInt("USERNAME_MAX", 32),
 	}
 }
 

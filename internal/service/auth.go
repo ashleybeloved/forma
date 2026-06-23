@@ -28,6 +28,16 @@ func (s *AuthService) Me(userID int) (*model.User, error) {
 }
 
 func (s *AuthService) Register(username, password string) (*model.User, error) {
+	err := s.Validator.ValidateUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.Validator.ValidatePassword(password)
+	if err != nil {
+		return nil, err
+	}
+
 	hashedPassword, err := pkg.HashPassword(password)
 	if err != nil {
 		return nil, err
