@@ -9,16 +9,18 @@ import (
 )
 
 type PollService struct {
-	Repo   *repository.PollRepository
-	Config *config.Config
-	GeoIP  *GeoIPService
+	Repo      *repository.PollRepository
+	Config    *config.Config
+	GeoIP     *GeoIPService
+	Validator *ValidatorService
 }
 
-func NewPollService(repo *repository.PollRepository, cfg *config.Config, geoIP *GeoIPService) *PollService {
+func NewPollService(repo *repository.PollRepository, cfg *config.Config, geoIP *GeoIPService, validator *ValidatorService) *PollService {
 	return &PollService{
-		Repo:   repo,
-		Config: cfg,
-		GeoIP:  geoIP,
+		Repo:      repo,
+		Config:    cfg,
+		GeoIP:     geoIP,
+		Validator: validator,
 	}
 }
 

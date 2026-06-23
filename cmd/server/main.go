@@ -42,13 +42,14 @@ func main() {
 		slog.Info("Close connection with GeoIP Service...")
 		geoIPService.Close()
 	}()
+	validatorService := service.NewValidatorService(cfg)
 
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, validatorService)
 	userHandler := handler.NewUserHandler(userService, cfg)
 
 	pollRepo := repository.NewPollRepository(db)
-	pollService := service.NewPollService(pollRepo, cfg, geoIPService)
+	pollService := service.NewPollService(pollRepo, cfg, geoIPService, validatorService)
 	pollHandler := handler.NewPollHandler(pollService, cfg)
 
 	// - Routes -
