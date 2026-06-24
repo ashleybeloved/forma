@@ -36,16 +36,16 @@ A pet project poll service built to practice web development with Go and Fronten
 │   ├── pkg/             # Shared packages
 │   ├── repository/      # Database access layer
 │   └── service/         # Business logic
-── migrations/          # SQLite schema migrations
-── data/                # Persistent storage (SQLite DB + GeoIP mmdb)
+├── migrations/          # SQLite schema migrations
+├── data/                # Persistent storage (SQLite DB + GeoIP mmdb)
 ├── frontend/            # Next.js application
 │   ├── .dockerignore    
 │   └── Dockerfile       # Multi-stage build for standalone output
 ├── router/              # Route definitions
 ├── docs/images/         # Documentation assets
 ├── Caddyfile            # Reverse proxy & SSL config
-── docker-compose.yml   # Service orchestration
-── Dockerfile           # Backend Docker build file
+├── docker-compose.yml   # Service orchestration
+├── Dockerfile           # Backend Docker build file
 ├── .env.example         # Environment variables template
 └── .dockerignore        # Root build exclusions
 ```
