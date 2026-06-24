@@ -7,8 +7,8 @@ A pet project poll service built to practice web development with Go and Fronten
 ## Tech Stack
 
 *   **Backend:** Go (1.26+), Gin Web Framework, SQLite, JWT, GeoIP2
-*   **Frontend:** Next.js (Standalone mode), React, TypeScript, Tailwind CSS
-*   **Reverse Proxy:** Caddy 2 (automated Let's Encrypt HTTPS)
+*   **Frontend:** Next.js, React, TypeScript, Tailwind CSS
+*   **Reverse Proxy:** Caddy 2
 *   **Orchestration:** Docker Compose
 
 ## Features
