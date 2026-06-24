@@ -65,7 +65,7 @@ func main() {
 	pollHandler := handler.NewPollHandler(pollService, cfg)
 
 	// - Routes -
-	api := r.Group("")
+	api := r.Group("/api")
 	{
 		// -- No Auth --
 		api.GET("/ping", pingHandler.Handle)
@@ -87,10 +87,10 @@ func main() {
 		auth.Use(middleware.AuthMiddleware(cfg))
 		{
 			auth.GET("/me", userHandler.Me)
-			auth.POST("/poll", pollHandler.CreatePoll)            // Create Poll
-			auth.PATCH("/poll/:short_id", pollHandler.UpdatePoll) // Edit Poll
-			auth.DELETE("/poll/short_id", pollHandler.DeletePoll) // Delete Poll
-			auth.GET("/poll", pollHandler.GetAllMyPolls)          // Get All Profile Polls | Queries LIMIT & OFFSET
+			auth.POST("/poll", pollHandler.CreatePoll)             // Create Poll
+			auth.PATCH("/poll/:short_id", pollHandler.UpdatePoll)  // Edit Poll
+			auth.DELETE("/poll/:short_id", pollHandler.DeletePoll) // Delete Poll
+			auth.GET("/poll", pollHandler.GetAllMyPolls)           // Get All Profile Polls | Queries LIMIT & OFFSET
 
 			auth.GET("/poll/:short_id/stats", pollHandler.GetPollStats) // Statistics
 		}
