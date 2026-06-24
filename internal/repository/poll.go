@@ -38,8 +38,8 @@ func (r *PollRepository) CreatePoll(poll *model.Poll, config []byte) error {
 }
 
 func (r *PollRepository) UpdatePoll(poll *model.Poll, configBytes []byte, userID int) error {
-	result, err := r.DB.Exec(`UPDATE polls SET title = ?, description = ?, config = ?, secured = ?, auth_only = ?, edited_at = DATETIME('now') WHERE id = ? AND creator_id = ?`,
-		poll.Title, poll.Description, configBytes, poll.Secured, poll.AuthOnly, poll.ID, userID)
+	result, err := r.DB.Exec(`UPDATE polls SET title = ?, description = ?, config = ?, secured = ?, auth_only = ?, edited_at = DATETIME('now') WHERE short_id = ? AND creator_id = ?`,
+		poll.Title, poll.Description, configBytes, poll.Secured, poll.AuthOnly, poll.ShortID, userID)
 
 	if err != nil {
 		slog.Error("failed to execute query", "error", err)
@@ -54,8 +54,8 @@ func (r *PollRepository) UpdatePoll(poll *model.Poll, configBytes []byte, userID
 	return nil
 }
 
-func (r *PollRepository) DeletePoll(pollID, creatorID int) error {
-	result, err := r.DB.Exec(`DELETE FROM polls WHERE id = ? AND creator_id = ?`, pollID, creatorID)
+func (r *PollRepository) DeletePoll(pollShortID string, creatorID int) error {
+	result, err := r.DB.Exec(`DELETE FROM polls WHERE short_id = ? AND creator_id = ?`, pollShortID, creatorID)
 	if err != nil {
 		return err
 	}

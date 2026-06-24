@@ -92,7 +92,7 @@ func (h *PollHandler) UpdatePoll(c *gin.Context) {
 		return
 	}
 
-	err = h.Service.UpdatePoll(req.ID, req.Title, req.Description, req.Config, userID.(int), *req.Secured, *req.AuthOnly)
+	err = h.Service.UpdatePoll(c.Param("short_id"), req.Title, req.Description, req.Config, userID.(int), *req.Secured, *req.AuthOnly)
 	if err != nil {
 		switch err {
 		case repository.ErrPollNotFound:
@@ -107,16 +107,6 @@ func (h *PollHandler) UpdatePoll(c *gin.Context) {
 }
 
 func (h *PollHandler) DeletePoll(c *gin.Context) {
-	req := &model.DeletePollRequest{}
-
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid input, id are required field",
-		})
-		return
-	}
-
 	userID, _ := c.Get("user_id")
 	if userID == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -125,7 +115,7 @@ func (h *PollHandler) DeletePoll(c *gin.Context) {
 		return
 	}
 
-	err = h.Service.DeletePoll(req.ID, userID.(int))
+	err := h.Service.DeletePoll(c.Param("short_id"), userID.(int))
 	if err != nil {
 		switch err {
 		case repository.ErrPollNotFound:

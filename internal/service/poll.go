@@ -68,14 +68,14 @@ func (s *PollService) CreatePoll(title, description string, config model.PollCon
 	return poll, nil
 }
 
-func (s *PollService) UpdatePoll(id int, title, description string, config model.PollConfig, userID int, secured, authOnly bool) error {
+func (s *PollService) UpdatePoll(short_id, title, description string, config model.PollConfig, userID int, secured, authOnly bool) error {
 	configBytes, err := json.Marshal(config)
 	if err != nil {
 		return ErrMarshalJSON
 	}
 
 	poll := &model.Poll{
-		ID:          id,
+		ShortID:     short_id,
 		Title:       title,
 		Description: description,
 		Secured:     secured,
