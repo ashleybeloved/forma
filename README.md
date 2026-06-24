@@ -1,9 +1,6 @@
 # Forma
 ![Site](docs/images/screenshot_1.png)
 
-[![RU](https://img.shields.io/badge/lang-RU-blue)](./docs/README.ru.md)
-[![EN Docs](https://img.shields.io/badge/docs-EN-lightgrey)](./docs/README.en.md)
-
 Forma is a small poll service with a Go backend and a Next.js frontend.
 
 ## Stack
@@ -35,38 +32,18 @@ frontend/        Next.js frontend
 data/            SQLite and GeoIP data
 ```
 
-## Run locally
+## Docker Setup
 
-### Backend
+`docker-compose up -d --build`
 
-Create `.env` in the project root:
+For add domain edit ./Caddyfile:
 
-```env
-SERVER_PORT=:8080
-APP_VERSION=dev
-JWT_SECRET_KEY=change_me
-DB_PATH=./data/forma.db
-GEOIP_DB_PATH=./data/GeoLite2-Country.mmdb
-DOMAIN=localhost
-HTTPS=false
 ```
-
-Then run:
-
-```bash
-go run ./cmd/server
+your-domain-here.com {
+    reverse_proxy /api/* backend:8080
+    reverse_proxy frontend:3000
+}
 ```
-
-### Frontend
-
-```bash
-npm --prefix frontend install
-npm --prefix frontend run dev
-```
-
-By default:
-- backend: `http://localhost:8080`
-- frontend: `http://localhost:3000`
 
 ## Notes
 
@@ -74,14 +51,6 @@ By default:
 - frontend talks to backend through the Next.js `/api` proxy
 - backend should be started from the repository root
 - GeoIP database file is required: `./data/GeoLite2-Country.mmdb`
-
-## Validation
-
-```bash
-go test ./...
-go build ./...
-npm --prefix frontend run build
-```
 
 ## More docs
 
