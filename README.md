@@ -1,4 +1,5 @@
 # Forma
+![Site](docs/images/screenshot_1.png)
 
 [![RU](https://img.shields.io/badge/lang-RU-blue)](./docs/README.ru.md)
 [![EN Docs](https://img.shields.io/badge/docs-EN-lightgrey)](./docs/README.en.md)
