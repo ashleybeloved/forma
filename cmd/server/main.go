@@ -65,7 +65,7 @@ func main() {
 	pollHandler := handler.NewPollHandler(pollService, cfg)
 
 	// - Routes -
-	api := r.Group("/api")
+	api := r.Group("")
 	{
 		// -- No Auth --
 		api.GET("/ping", pingHandler.Handle)

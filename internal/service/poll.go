@@ -85,8 +85,8 @@ func (s *PollService) UpdatePoll(short_id, title, description string, config mod
 	return s.Repo.UpdatePoll(poll, configBytes, userID)
 }
 
-func (s *PollService) DeletePoll(id, creatorID int) error {
-	return s.Repo.DeletePoll(id, creatorID)
+func (s *PollService) DeletePoll(short_id string, creatorID int) error {
+	return s.Repo.DeletePoll(short_id, creatorID)
 }
 
 func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers []model.Answer) error {
@@ -104,6 +104,11 @@ func (s *PollService) Vote(tokenStr, pollShortID, guestToken, ip string, answers
 	}
 
 	poll, err := s.Repo.GetPollByShortID(pollShortID)
+	if err != nil {
+		return err
+	}
+
+	err = s.Validator.ValidateAnswers(poll.Config.Questions, answers)
 	if err != nil {
 		return err
 	}
