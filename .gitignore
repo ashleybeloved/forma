@@ -1,5 +1,4 @@
 *.env
 *.db
 *.sqlite
-/frontend/
 forma-server
