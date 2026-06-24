@@ -51,8 +51,3 @@ your-domain-here.com {
 - frontend talks to backend through the Next.js `/api` proxy
 - backend should be started from the repository root
 - GeoIP database file is required: `./data/GeoLite2-Country.mmdb`
-
-## More docs
-
-- English: `docs/README.en.md`
-- Russian: `docs/README.ru.md`
