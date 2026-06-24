@@ -73,7 +73,7 @@ Then edit `.env` with your configuration.
 Build and start containers in the background:
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## Production
@@ -102,6 +102,6 @@ your-domain.com, www.your-domain.com {
 
 ### 3. Deploy on your server
 
-`docker-compose up -d --build`
+`docker compose up -d --build`
 
 ###### Notes: The frontend is completely vibe-coded, but the backend is hand-written. The project may contain mistakes =)
