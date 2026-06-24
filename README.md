@@ -2,7 +2,7 @@
 
 ![Site](/docs/images/screenshot_1.png)
 
-A pet project poll service built to practice web development with Go and Next.js. It uses Docker Compose to run the backend, frontend, and a reverse proxy together locally.
+A pet project poll service built to practice web development with Go and Frontend Layer. It uses Docker Compose to run the backend, frontend, and a reverse proxy together locally.
 
 ## Tech Stack
 
