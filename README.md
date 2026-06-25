@@ -2,13 +2,13 @@
 
 ![Site](/docs/images/screenshot_1.png)
 
-A pet project poll service built to practice web development with Go and Next.js. It uses Docker Compose to run the backend, frontend, and a reverse proxy together locally.
+A pet project poll service built to practice web development with Go and Frontend Layer. It uses Docker Compose to run the backend, frontend, and a reverse proxy together locally.
 
 ## Tech Stack
 
 *   **Backend:** Go (1.26+), Gin Web Framework, SQLite, JWT, GeoIP2
-*   **Frontend:** Next.js (Standalone mode), React, TypeScript, Tailwind CSS
-*   **Reverse Proxy:** Caddy 2 (automated Let's Encrypt HTTPS)
+*   **Frontend:** Next.js, React, TypeScript, Tailwind CSS
+*   **Reverse Proxy:** Caddy 2
 *   **Orchestration:** Docker Compose
 
 ## Features
@@ -36,16 +36,16 @@ A pet project poll service built to practice web development with Go and Next.js
 │   ├── pkg/             # Shared packages
 │   ├── repository/      # Database access layer
 │   └── service/         # Business logic
-── migrations/          # SQLite schema migrations
-── data/                # Persistent storage (SQLite DB + GeoIP mmdb)
+├── migrations/          # SQLite schema migrations
+├── data/                # Persistent storage (SQLite DB + GeoIP mmdb)
 ├── frontend/            # Next.js application
 │   ├── .dockerignore    
 │   └── Dockerfile       # Multi-stage build for standalone output
 ├── router/              # Route definitions
 ├── docs/images/         # Documentation assets
 ├── Caddyfile            # Reverse proxy & SSL config
-── docker-compose.yml   # Service orchestration
-── Dockerfile           # Backend Docker build file
+├── docker-compose.yml   # Service orchestration
+├── Dockerfile           # Backend Docker build file
 ├── .env.example         # Environment variables template
 └── .dockerignore        # Root build exclusions
 ```
@@ -73,7 +73,7 @@ Then edit `.env` with your configuration.
 Build and start containers in the background:
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## Production
@@ -102,6 +102,6 @@ your-domain.com, www.your-domain.com {
 
 ### 3. Deploy on your server
 
-`docker-compose up -d --build`
+`docker compose up -d --build`
 
 ###### Notes: The frontend is completely vibe-coded, but the backend is hand-written. The project may contain mistakes =)
