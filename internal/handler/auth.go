@@ -65,6 +65,18 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		switch err {
 		case repository.ErrUsernameAlreadyExists:
 			c.JSON(http.StatusConflict, gin.H{"error": repository.ErrUsernameAlreadyExists.Error()})
+		case service.ErrMustContainLetter:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrMustContainLetter.Error()})
+		case service.ErrDoubleUnderscores:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrDoubleUnderscores.Error()})
+		case service.ErrUsernameTooBig:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrUsernameTooBig.Error()})
+		case service.ErrUsernameTooSmall:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrUsernameTooSmall.Error()})
+		case service.ErrPasswordTooBig:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrPasswordTooBig.Error()})
+		case service.ErrPasswordTooSmall:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrPasswordTooSmall.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "failed to register user",

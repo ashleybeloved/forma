@@ -188,6 +188,18 @@ func (h *PollHandler) Vote(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": service.ErrAlreadyVoted.Error()})
 		case service.ErrAuthOnly:
 			c.JSON(http.StatusUnauthorized, gin.H{"error": service.ErrAuthOnly.Error()})
+		case service.ErrAnswersNotCompare:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrAnswersNotCompare.Error()})
+		case service.ErrQuestionType:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrQuestionType.Error()})
+		case service.ErrQuestionNotFound:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrQuestionNotFound.Error()})
+		case service.ErrOptionNotFound:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrOptionNotFound.Error()})
+		case service.ErrEmptyAnswer:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrEmptyAnswer.Error()})
+		case service.ErrDuplicateOptions:
+			c.JSON(http.StatusConflict, gin.H{"error": service.ErrDuplicateOptions.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to vote"})
 		}
